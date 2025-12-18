@@ -1,0 +1,123 @@
+.header {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  font-size: 32px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff, #a29bfe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-left: 8px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Status Badge */
+.status-badge {
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.status-badge.online {
+  background: rgba(46, 213, 115, 0.15);
+  color: #2ed573;
+  border: 1px solid rgba(46, 213, 115, 0.3);
+  box-shadow: 0 0 20px rgba(46, 213, 115, 0.2);
+}
+
+.status-badge.offline {
+  background: rgba(255, 71, 87, 0.15);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  box-shadow: 0 0 20px rgba(255, 71, 87, 0.2);
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-badge.online .status-dot {
+  background: #2ed573;
+  box-shadow: 0 0 10px #2ed573;
+}
+
+.status-badge.offline .status-dot {
+  background: #ff4757;
+  box-shadow: 0 0 10px #ff4757;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .header-left {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .subtitle {
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+
+  .header h1 {
+    font-size: 18px;
+  }
+}

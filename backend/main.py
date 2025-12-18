@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import threading
+import os
+from pathlib import Path
 from datetime import datetime, timedelta
 from backend.state import stats
 from backend.engine import start_engine
@@ -23,8 +25,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Serve dashboard static files
-app.mount("/static", StaticFiles(directory="dashboard"), name="static")
+# Get the base directory (project root)
+BASE_DIR = Path(__file__).resolve().parent.parent
+REACT_BUILD_DIR = BASE_DIR / "dashboard-react" / "build"
+
+# Mount React static files
+app.mount("/static", StaticFiles(directory=str(REACT_BUILD_DIR / "static")), name="static")
 
 @app.on_event("startup")
 def startup():
@@ -33,7 +39,8 @@ def startup():
 
 @app.get("/")
 def root():
-    return FileResponse("dashboard/index.html")
+    """Serve the React dashboard"""
+    return FileResponse(str(REACT_BUILD_DIR / "index.html"))
 
 @app.get("/api/status")
 def api_status():

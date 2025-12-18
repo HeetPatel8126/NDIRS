@@ -1,0 +1,9 @@
+.sources-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.sources-panel .chart-container {
+  flex: 1;
+  min-height: 350px;
+}

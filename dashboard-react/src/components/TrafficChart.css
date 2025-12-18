@@ -1,0 +1,66 @@
+.traffic-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.traffic-panel .panel-header {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.traffic-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.traffic-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  min-width: 70px;
+}
+
+.traffic-stat .stat-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.traffic-stat .stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.traffic-stat.current .stat-value {
+  color: #74b9ff;
+}
+
+.traffic-stat.avg .stat-value {
+  color: #a29bfe;
+}
+
+.traffic-stat.max .stat-value {
+  color: #ff7675;
+}
+
+.traffic-panel .chart-container {
+  flex: 1;
+  min-height: 280px;
+}
+
+@media (max-width: 600px) {
+  .traffic-stats {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .traffic-stat {
+    padding: 6px 12px;
+    min-width: 60px;
+  }
+}
