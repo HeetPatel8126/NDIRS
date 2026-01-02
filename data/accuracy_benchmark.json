@@ -1,0 +1,45 @@
+{
+  "accuracy": 70.91,
+  "precision": 88.57,
+  "recall_detection_rate": 72.09,
+  "f1_score": 79.49,
+  "false_positive_rate": 33.33,
+  "confusion_matrix": {
+    "true_positives": 310,
+    "false_positives": 40,
+    "true_negatives": 80,
+    "false_negatives": 120
+  },
+  "by_attack_type": {
+    "dos": {
+      "detection_rate": 100.0,
+      "detected": 100,
+      "missed": 0,
+      "total": 100
+    },
+    "ddos": {
+      "detection_rate": 0.0,
+      "detected": 0,
+      "missed": 100,
+      "total": 100
+    },
+    "syn_flood": {
+      "detection_rate": 100.0,
+      "detected": 80,
+      "missed": 0,
+      "total": 80
+    },
+    "port_scan": {
+      "detection_rate": 80.0,
+      "detected": 80,
+      "missed": 20,
+      "total": 100
+    },
+    "amplification": {
+      "detection_rate": 100.0,
+      "detected": 50,
+      "missed": 0,
+      "total": 50
+    }
+  }
+}

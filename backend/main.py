@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -6,12 +6,20 @@ import threading
 import os
 from pathlib import Path
 from datetime import datetime, timedelta
+from typing import Dict, List, Optional
 from backend.state import stats
 from backend.engine import start_engine
 from backend.database import (
     get_session, Traffic, Alert, BlockedIP, SystemStats,
-    get_recent_alerts, get_blocked_ips, block_ip
+    NormalizedLog as NormalizedLogDB, CorrelatedEvent as CorrelatedEventDB,
+    AttackChain as AttackChainDB, ScoredAlert as ScoredAlertDB,
+    get_recent_alerts, get_blocked_ips, block_ip,
+    save_normalized_log, save_correlated_event, save_attack_chain, save_scored_alert
 )
+from backend.log_ingestion import ingestion_engine, log_buffer
+from backend.correlation import correlation_engine
+from backend.attack_chain import attack_chain_detector
+from backend.alert_scoring import alert_engine
 
 
 app = FastAPI(title="NIDRS API")
@@ -232,3 +240,202 @@ def get_stats_summary():
         }
     finally:
         session.close()
+
+
+# ============ LOG CORRELATION ENGINE ENDPOINTS ============
+
+@app.post("/api/logs/ingest")
+def ingest_log(log_data: Dict = Body(...)):
+    """Ingest a single log entry (JSON format)"""
+    normalized = ingestion_engine.ingest_json(log_data, source_name="api")
+    if normalized:
+        # Also feed to correlation engine
+        correlation_engine.add_event(normalized.to_dict())
+        return {"status": "ingested", "log_id": normalized.id}
+    return {"status": "failed", "error": "Could not parse log"}
+
+
+@app.post("/api/logs/ingest/batch")
+def ingest_logs_batch(logs: List[Dict] = Body(...)):
+    """Ingest multiple log entries"""
+    ingested = 0
+    for log_data in logs:
+        normalized = ingestion_engine.ingest_json(log_data, source_name="api")
+        if normalized:
+            correlation_engine.add_event(normalized.to_dict())
+            ingested += 1
+    return {"status": "completed", "ingested": ingested, "total": len(logs)}
+
+
+@app.post("/api/logs/ingest/syslog")
+def ingest_syslog(line: str = Body(..., embed=True)):
+    """Ingest a syslog line"""
+    normalized = ingestion_engine.ingest_log_line(line, source_type="syslog")
+    if normalized:
+        correlation_engine.add_event(normalized.to_dict())
+        return {"status": "ingested", "log_id": normalized.id}
+    return {"status": "failed", "error": "Could not parse syslog"}
+
+
+@app.get("/api/logs/recent")
+def get_recent_logs(limit: int = Query(100, ge=1, le=1000)):
+    """Get recent normalized logs"""
+    return ingestion_engine.get_recent_logs(limit)
+
+
+@app.get("/api/logs/by-source/{source_type}")
+def get_logs_by_source(source_type: str, limit: int = Query(100, ge=1, le=500)):
+    """Get logs filtered by source type"""
+    return ingestion_engine.get_logs_by_source(source_type, limit)
+
+
+# ============ CORRELATION ENGINE ENDPOINTS ============
+
+@app.get("/api/correlation/threats")
+def get_active_threats():
+    """Get currently active correlated threats"""
+    return correlation_engine.get_active_threats()
+
+
+@app.get("/api/correlation/summary")
+def get_threat_summary():
+    """Get summary of current threats"""
+    return correlation_engine.get_threat_summary()
+
+
+@app.get("/api/correlation/timeline")
+def get_attack_timeline():
+    """Get timeline of attacks"""
+    return correlation_engine.get_attack_timeline()
+
+
+@app.post("/api/correlation/run")
+def run_correlation():
+    """Manually trigger correlation analysis"""
+    new_correlations = correlation_engine.correlate()
+    
+    # Feed to attack chain detector
+    for corr in new_correlations:
+        attack_chain_detector.process_correlated_event(corr.to_dict())
+    
+    return {
+        "status": "completed",
+        "new_correlations": len(new_correlations),
+        "total_active": len(correlation_engine.correlated_events)
+    }
+
+
+# ============ ATTACK CHAIN ENDPOINTS ============
+
+@app.get("/api/chains/active")
+def get_active_attack_chains():
+    """Get active multi-stage attack chains"""
+    return attack_chain_detector.get_active_chains()
+
+
+@app.get("/api/chains/all")
+def get_all_attack_chains():
+    """Get all attack chains (active and inactive)"""
+    return attack_chain_detector.get_all_chains()
+
+
+@app.get("/api/chains/critical")
+def get_critical_chains():
+    """Get critical severity attack chains"""
+    return attack_chain_detector.get_critical_chains()
+
+
+@app.get("/api/chains/by-ip/{ip}")
+def get_chain_by_ip(ip: str):
+    """Get attack chain associated with an IP"""
+    chain = attack_chain_detector.get_chain_by_ip(ip)
+    if chain:
+        return chain
+    return {"status": "not_found", "ip": ip}
+
+
+@app.get("/api/chains/statistics")
+def get_chain_statistics():
+    """Get attack chain statistics"""
+    return attack_chain_detector.get_chain_statistics()
+
+
+# ============ ALERT SCORING ENDPOINTS ============
+
+@app.get("/api/alerts/prioritized")
+def get_prioritized_alerts(limit: int = Query(50, ge=1, le=200)):
+    """Get alerts sorted by priority score"""
+    return alert_engine.get_prioritized_alerts(limit)
+
+
+@app.get("/api/alerts/aggregated")
+def get_aggregated_alerts(limit: int = Query(50, ge=1, le=200)):
+    """Get aggregated and prioritized alerts"""
+    return alert_engine.get_aggregated_alerts(limit)
+
+
+@app.get("/api/alerts/statistics")
+def get_alert_statistics():
+    """Get alert processing statistics (suppression rate, etc.)"""
+    return alert_engine.get_statistics()
+
+
+@app.post("/api/alerts/score")
+def score_alert(alert_data: Dict = Body(...)):
+    """Score a single alert and get prioritization"""
+    scored = alert_engine.process_alert(alert_data)
+    if scored:
+        return scored.to_dict()
+    return {"status": "suppressed_or_duplicate"}
+
+
+# ============ SOC DASHBOARD ENDPOINTS ============
+
+@app.get("/api/soc/overview")
+def get_soc_overview():
+    """Get comprehensive SOC overview for dashboard"""
+    session = get_session()
+    try:
+        return {
+            "threat_summary": correlation_engine.get_threat_summary(),
+            "alert_stats": alert_engine.get_statistics(),
+            "chain_stats": attack_chain_detector.get_chain_statistics(),
+            "active_threats": len(correlation_engine.correlated_events),
+            "critical_chains": len(attack_chain_detector.get_critical_chains()),
+            "top_source_ips": _get_top_source_ips(session),
+            "recent_high_priority": alert_engine.get_prioritized_alerts(10)
+        }
+    finally:
+        session.close()
+
+
+def _get_top_source_ips(session, limit=10):
+    """Get top source IPs from alerts"""
+    from sqlalchemy import func
+    results = session.query(
+        Alert.src_ip,
+        func.count(Alert.id).label('count')
+    ).filter(
+        Alert.src_ip != None
+    ).group_by(Alert.src_ip).order_by(
+        func.count(Alert.id).desc()
+    ).limit(limit).all()
+    
+    return [{"ip": r[0], "count": r[1]} for r in results]
+
+
+@app.get("/api/soc/attack-narratives")
+def get_attack_narratives(limit: int = Query(10, ge=1, le=50)):
+    """Get human-readable attack narratives"""
+    chains = attack_chain_detector.get_active_chains()
+    narratives = []
+    for chain in chains[:limit]:
+        narratives.append({
+            "id": chain["id"],
+            "name": chain["name"],
+            "severity": chain["severity"],
+            "narrative": chain["narrative"],
+            "stages": chain["stages"],
+            "confidence": chain["confidence"]
+        })
+    return narratives
