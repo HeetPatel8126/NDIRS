@@ -12,7 +12,6 @@ function AlertItem({ alert, index }) {
     <div className={`alert-item ${severityClass}`} style={{ animationDelay: `${index * 0.05}s` }}>
       <div className="alert-header">
         <span className="alert-type">
-          <span className="alert-icon">⚠️</span>
           {alert.type}
         </span>
         <span className="alert-time">
@@ -21,18 +20,15 @@ function AlertItem({ alert, index }) {
       </div>
       <div className="alert-details">
         <div className="alert-detail">
-          <span className="detail-icon">🌐</span>
           <span className="detail-label">Source:</span>
           <span className="detail-value">{alert.src_ip}</span>
         </div>
         <div className="alert-detail">
-          <span className="detail-icon">📡</span>
           <span className="detail-label">Protocol:</span>
           <span className="detail-value">{alert.protocol}</span>
         </div>
         {alert.dst_ip && (
           <div className="alert-detail">
-            <span className="detail-icon">🎯</span>
             <span className="detail-label">Target:</span>
             <span className="detail-value">{alert.dst_ip}</span>
           </div>
@@ -58,7 +54,6 @@ function AlertsPanel({ alerts }) {
     <div className="panel alerts-panel">
       <div className="panel-header">
         <h2 className="panel-title">
-          <span className="panel-icon">🚨</span>
           Security Alerts
         </h2>
         <span className="alert-count">{alerts.length} total</span>

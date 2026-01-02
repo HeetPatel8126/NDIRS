@@ -56,25 +56,6 @@ function CorrelationPage() {
     }
   };
 
-  const getStageIcon = (stage) => {
-    const icons = {
-      reconnaissance: '🔍',
-      initial_access: '🚪',
-      execution: '⚡',
-      persistence: '🔒',
-      privilege_escalation: '📈',
-      defense_evasion: '🛡️',
-      credential_access: '🔑',
-      discovery: '🗺️',
-      lateral_movement: '↔️',
-      collection: '📦',
-      exfiltration: '📤',
-      impact: '💥',
-      unknown: '❓'
-    };
-    return icons[stage] || '❓';
-  };
-
   if (loading) {
     return (
       <div className="correlation-page">
@@ -87,11 +68,11 @@ function CorrelationPage() {
     <div className="correlation-page">
       <div className="page-header">
         <div className="header-content">
-          <h2>🔗 Event Correlation</h2>
+          <h2>Event Correlation</h2>
           <p>Correlated threats and attack narratives from multiple data sources</p>
         </div>
         <button className="run-btn" onClick={runCorrelation}>
-          ▶️ Run Correlation
+          Run Correlation
         </button>
       </div>
 
@@ -99,28 +80,24 @@ function CorrelationPage() {
       {summary && (
         <div className="summary-grid">
           <div className="summary-card">
-            <div className="summary-icon">🎯</div>
             <div className="summary-content">
               <div className="summary-value">{summary.total_threats || 0}</div>
               <div className="summary-label">Active Threats</div>
             </div>
           </div>
           <div className="summary-card critical">
-            <div className="summary-icon">🔴</div>
             <div className="summary-content">
               <div className="summary-value">{summary.critical_count || 0}</div>
               <div className="summary-label">Critical</div>
             </div>
           </div>
           <div className="summary-card high">
-            <div className="summary-icon">🟠</div>
             <div className="summary-content">
               <div className="summary-value">{summary.high_count || 0}</div>
               <div className="summary-label">High</div>
             </div>
           </div>
           <div className="summary-card">
-            <div className="summary-icon">📊</div>
             <div className="summary-content">
               <div className="summary-value">{summary.total_events || 0}</div>
               <div className="summary-label">Correlated Events</div>
@@ -133,13 +110,12 @@ function CorrelationPage() {
         {/* Threats List */}
         <div className="threats-panel panel">
           <div className="panel-header">
-            <h3 className="panel-title">🚨 Active Threats</h3>
+            <h3 className="panel-title">Active Threats</h3>
             <span className="panel-subtitle">{threats.length} detected</span>
           </div>
           
           {threats.length === 0 ? (
             <div className="no-data">
-              <div className="no-data-icon">✅</div>
               <p>No active correlated threats</p>
             </div>
           ) : (
@@ -156,21 +132,17 @@ function CorrelationPage() {
                     </span>
                     <span className="threat-type">{threat.attack_type}</span>
                     <span className="confidence">
-                      {Math.round((threat.confidence || 0) * 100)}% confidence
+                      {Math.round((threat.confidence || 0) * 100)}%
                     </span>
                   </div>
                   <div className="threat-meta">
-                    <span className="stage">
-                      {getStageIcon(threat.stage)} {threat.stage}
-                    </span>
-                    <span className="event-count">
-                      📋 {threat.event_count || 0} events
-                    </span>
+                    <span className="stage">{threat.stage}</span>
+                    <span className="event-count">{threat.event_count || 0} events</span>
                   </div>
                   {threat.source_ips?.length > 0 && (
                     <div className="threat-ips">
                       <span>Sources: {threat.source_ips.slice(0, 3).join(', ')}</span>
-                      {threat.source_ips.length > 3 && <span>+{threat.source_ips.length - 3} more</span>}
+                      {threat.source_ips.length > 3 && <span> +{threat.source_ips.length - 3} more</span>}
                     </div>
                   )}
                 </div>
@@ -182,7 +154,7 @@ function CorrelationPage() {
         {/* Threat Details */}
         <div className="details-panel panel">
           <div className="panel-header">
-            <h3 className="panel-title">📋 Threat Details</h3>
+            <h3 className="panel-title">Threat Details</h3>
           </div>
           
           {selectedThreat ? (
@@ -199,7 +171,7 @@ function CorrelationPage() {
                 </div>
                 <div className="detail-item">
                   <label>Stage</label>
-                  <span>{getStageIcon(selectedThreat.stage)} {selectedThreat.stage}</span>
+                  <span>{selectedThreat.stage}</span>
                 </div>
                 <div className="detail-item">
                   <label>First Seen</label>
@@ -265,7 +237,6 @@ function CorrelationPage() {
             </div>
           ) : (
             <div className="no-selection">
-              <div className="no-selection-icon">👆</div>
               <p>Select a threat to view details</p>
             </div>
           )}
@@ -276,7 +247,7 @@ function CorrelationPage() {
       {timeline.length > 0 && (
         <div className="timeline-panel panel">
           <div className="panel-header">
-            <h3 className="panel-title">📅 Attack Timeline</h3>
+            <h3 className="panel-title">Attack Timeline</h3>
           </div>
           <div className="timeline">
             {timeline.slice(0, 20).map((item, index) => (

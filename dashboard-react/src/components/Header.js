@@ -5,8 +5,7 @@ function Header({ isConnected }) {
   return (
     <header className="header">
       <div className="header-left">
-        <span className="logo">🛡️</span>
-        <h1>NIDRS Dashboard</h1>
+        <span className="logo">NIDRS</span>
         <span className="subtitle">Network Intrusion Detection & Response System</span>
       </div>
       <div className={`status-badge ${isConnected ? 'online' : 'offline'}`}>

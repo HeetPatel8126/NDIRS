@@ -42,24 +42,6 @@ function LogsPage() {
     }
   };
 
-  const getEventIcon = (eventType) => {
-    const icons = {
-      login: '🔑',
-      logout: '🚪',
-      file_access: '📁',
-      network: '🌐',
-      process: '⚙️',
-      firewall: '🛡️',
-      authentication: '🔐',
-      system: '💻',
-      security: '🔒',
-      error: '❌',
-      warning: '⚠️',
-      info: 'ℹ️'
-    };
-    return icons[eventType?.toLowerCase()] || '📋';
-  };
-
   const filteredLogs = logs.filter(log => {
     if (!searchTerm) return true;
     const searchLower = searchTerm.toLowerCase();
@@ -86,12 +68,11 @@ function LogsPage() {
     <div className="logs-page">
       <div className="page-header">
         <div className="header-content">
-          <h2>📋 Logs</h2>
+          <h2>Logs</h2>
           <p>Normalized and ingested log entries from all sources</p>
         </div>
         <div className="header-actions">
           <div className="search-box">
-            <span className="search-icon">🔍</span>
             <input
               type="text"
               placeholder="Search logs..."
@@ -139,13 +120,12 @@ function LogsPage() {
         {/* Logs Table */}
         <div className="logs-panel panel">
           <div className="panel-header">
-            <h3 className="panel-title">📄 Log Entries</h3>
+            <h3 className="panel-title">Log Entries</h3>
             <span className="panel-subtitle">{filteredLogs.length} entries</span>
           </div>
           
           {filteredLogs.length === 0 ? (
             <div className="no-data">
-              <div className="no-data-icon">📭</div>
               <p>No logs found</p>
             </div>
           ) : (
@@ -173,7 +153,7 @@ function LogsPage() {
                       </td>
                       <td className="col-type">
                         <span className="event-type">
-                          {getEventIcon(log.event_type)} {log.event_type || '-'}
+                          {log.event_type || '-'}
                         </span>
                       </td>
                       <td className="col-severity">
@@ -199,7 +179,7 @@ function LogsPage() {
         {/* Log Details */}
         <div className="details-panel panel">
           <div className="panel-header">
-            <h3 className="panel-title">🔍 Log Details</h3>
+            <h3 className="panel-title">Log Details</h3>
           </div>
           
           {selectedLog ? (
@@ -209,7 +189,7 @@ function LogsPage() {
                   {selectedLog.severity?.toUpperCase() || 'INFO'}
                 </span>
                 <span className="event-type-large">
-                  {getEventIcon(selectedLog.event_type)} {selectedLog.event_type}
+                  {selectedLog.event_type}
                 </span>
               </div>
 

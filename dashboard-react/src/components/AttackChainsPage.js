@@ -72,24 +72,6 @@ function AttackChainsPage() {
     }));
   };
 
-  const getStageIcon = (stage) => {
-    const icons = {
-      reconnaissance: '🔍',
-      initial_access: '🚪',
-      execution: '⚡',
-      persistence: '🔒',
-      privilege_escalation: '📈',
-      defense_evasion: '🛡️',
-      credential_access: '🔑',
-      discovery: '🗺️',
-      lateral_movement: '↔️',
-      collection: '📦',
-      exfiltration: '📤',
-      impact: '💥'
-    };
-    return icons[stage] || '❓';
-  };
-
   const displayChains = getDisplayChains();
 
   if (loading) {
@@ -104,7 +86,7 @@ function AttackChainsPage() {
     <div className="attack-chains-page">
       <div className="page-header">
         <div className="header-content">
-          <h2>⛓️ Attack Chains</h2>
+          <h2>Attack Chains</h2>
           <p>Multi-stage attack detection and kill chain analysis</p>
         </div>
         <div className="view-toggle">
@@ -133,28 +115,24 @@ function AttackChainsPage() {
       {statistics && (
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-icon">⛓️</div>
             <div className="stat-content">
               <div className="stat-value">{statistics.total_chains || 0}</div>
               <div className="stat-label">Total Chains</div>
             </div>
           </div>
           <div className="stat-card active">
-            <div className="stat-icon">🔴</div>
             <div className="stat-content">
               <div className="stat-value">{statistics.active_chains || 0}</div>
               <div className="stat-label">Active Chains</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">📊</div>
             <div className="stat-content">
               <div className="stat-value">{statistics.avg_stages?.toFixed(1) || 0}</div>
               <div className="stat-label">Avg Stages</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">🎯</div>
             <div className="stat-content">
               <div className="stat-value">{statistics.unique_attackers || 0}</div>
               <div className="stat-label">Unique Attackers</div>
@@ -167,13 +145,12 @@ function AttackChainsPage() {
         {/* Chains List */}
         <div className="chains-panel panel">
           <div className="panel-header">
-            <h3 className="panel-title">🔗 Attack Chains</h3>
+            <h3 className="panel-title">Attack Chains</h3>
             <span className="panel-subtitle">{displayChains.length} chains</span>
           </div>
           
           {displayChains.length === 0 ? (
             <div className="no-data">
-              <div className="no-data-icon">✅</div>
               <p>No attack chains detected</p>
             </div>
           ) : (
@@ -190,7 +167,7 @@ function AttackChainsPage() {
                     </span>
                     <span className="chain-id">Chain #{chain.id?.slice(-6) || index}</span>
                     <span className={`chain-status ${chain.is_active ? 'active' : 'inactive'}`}>
-                      {chain.is_active ? '● Active' : '○ Inactive'}
+                      {chain.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </div>
                   
@@ -202,7 +179,7 @@ function AttackChainsPage() {
                   <div className="chain-stages">
                     {chain.stages?.slice(0, 5).map((stage, i) => (
                       <span key={i} className="stage-tag">
-                        {getStageIcon(stage)} {stage.replace('_', ' ')}
+                        {stage.replace('_', ' ')}
                       </span>
                     ))}
                     {chain.stages?.length > 5 && (
@@ -211,8 +188,8 @@ function AttackChainsPage() {
                   </div>
 
                   <div className="chain-meta">
-                    <span>📋 {chain.event_count || 0} events</span>
-                    <span>🎯 {Math.round((chain.confidence || 0) * 100)}%</span>
+                    <span>{chain.event_count || 0} events</span>
+                    <span>{Math.round((chain.confidence || 0) * 100)}%</span>
                   </div>
                 </div>
               ))}
@@ -223,7 +200,7 @@ function AttackChainsPage() {
         {/* Chain Details */}
         <div className="details-panel panel">
           <div className="panel-header">
-            <h3 className="panel-title">📋 Chain Details</h3>
+            <h3 className="panel-title">Chain Details</h3>
           </div>
           
           {selectedChain ? (
@@ -234,7 +211,6 @@ function AttackChainsPage() {
                 <div className="kill-chain-progress">
                   {getStageProgress(selectedChain.stages).map((stage, i) => (
                     <div key={i} className={`stage-step ${stage.completed ? 'completed' : ''}`}>
-                      <div className="stage-icon">{getStageIcon(stage.name)}</div>
                       <div className="stage-name">{stage.name.replace('_', ' ')}</div>
                     </div>
                   ))}
@@ -295,7 +271,7 @@ function AttackChainsPage() {
                     {selectedChain.events.slice(0, 15).map((event, i) => (
                       <div key={i} className="timeline-event">
                         <div className="event-stage">
-                          {getStageIcon(event.stage)} {event.stage}
+                          {event.stage}
                         </div>
                         <div className="event-detail">
                           <span className="event-type">{event.event_type || event.type}</span>
@@ -311,7 +287,6 @@ function AttackChainsPage() {
             </div>
           ) : (
             <div className="no-selection">
-              <div className="no-selection-icon">👆</div>
               <p>Select an attack chain to view details</p>
             </div>
           )}

@@ -69,7 +69,7 @@ function AlertsPage() {
     <div className="alerts-page">
       <div className="page-header">
         <div className="header-content">
-          <h2>🚨 Alerts</h2>
+          <h2>Alerts</h2>
           <p>Prioritized and aggregated security alerts with intelligent scoring</p>
         </div>
         <div className="view-toggle">
@@ -92,21 +92,18 @@ function AlertsPage() {
       {statistics && (
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-icon">📥</div>
             <div className="stat-content">
               <div className="stat-value">{statistics.total_processed || 0}</div>
               <div className="stat-label">Total Processed</div>
             </div>
           </div>
           <div className="stat-card suppressed">
-            <div className="stat-icon">🔇</div>
             <div className="stat-content">
               <div className="stat-value">{statistics.suppressed || 0}</div>
               <div className="stat-label">Suppressed</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">📊</div>
             <div className="stat-content">
               <div className="stat-value">
                 {statistics.suppression_rate ? `${(statistics.suppression_rate * 100).toFixed(1)}%` : '0%'}
@@ -115,7 +112,6 @@ function AlertsPage() {
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">📦</div>
             <div className="stat-content">
               <div className="stat-value">{statistics.aggregated_groups || 0}</div>
               <div className="stat-label">Aggregated Groups</div>
@@ -129,14 +125,13 @@ function AlertsPage() {
         <div className="alerts-list-panel panel">
           <div className="panel-header">
             <h3 className="panel-title">
-              {viewMode === 'prioritized' ? '⚡ Prioritized Alerts' : '📦 Aggregated Alerts'}
+              {viewMode === 'prioritized' ? 'Prioritized Alerts' : 'Aggregated Alerts'}
             </h3>
             <span className="panel-subtitle">{displayAlerts.length} alerts</span>
           </div>
           
           {displayAlerts.length === 0 ? (
             <div className="no-data">
-              <div className="no-data-icon">✅</div>
               <p>No alerts</p>
             </div>
           ) : (
@@ -186,7 +181,7 @@ function AlertsPage() {
         {/* Alert Details */}
         <div className="details-panel panel">
           <div className="panel-header">
-            <h3 className="panel-title">📋 Alert Details</h3>
+            <h3 className="panel-title">Alert Details</h3>
           </div>
           
           {selectedAlert ? (
@@ -249,7 +244,6 @@ function AlertsPage() {
                   <div className="factors-list">
                     {selectedAlert.factors.map((factor, i) => (
                       <div key={i} className="factor-item">
-                        <span className="factor-icon">📌</span>
                         <span className="factor-text">{factor}</span>
                       </div>
                     ))}
@@ -295,7 +289,6 @@ function AlertsPage() {
             </div>
           ) : (
             <div className="no-selection">
-              <div className="no-selection-icon">👆</div>
               <p>Select an alert to view details</p>
             </div>
           )}

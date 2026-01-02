@@ -1,10 +1,9 @@
 import React from 'react';
 import './StatsGrid.css';
 
-function StatCard({ icon, label, value, colorClass, trend }) {
+function StatCard({ label, value, colorClass, trend }) {
   return (
     <div className={`stat-card ${colorClass}`}>
-      <div className="stat-icon">{icon}</div>
       <div className="stat-content">
         <span className="stat-label">{label}</span>
         <span className="stat-value">{value.toLocaleString()}</span>
@@ -22,26 +21,22 @@ function StatsGrid({ totalPackets, protocolCount, alertCount }) {
   return (
     <div className="stats-grid">
       <StatCard
-        icon="📦"
-        label="Total Packets Captured"
+        label="Total Packets"
         value={totalPackets}
         colorClass="packets"
       />
       <StatCard
-        icon="🔌"
-        label="Unique Protocols"
+        label="Protocols"
         value={protocolCount}
         colorClass="protocols"
       />
       <StatCard
-        icon="🚨"
-        label="Security Alerts"
+        label="Alerts"
         value={alertCount}
         colorClass="alerts"
       />
       <StatCard
-        icon="⚡"
-        label="Packets/Second"
+        label="Packets/Sec"
         value={Math.round(totalPackets / 60)}
         colorClass="rate"
       />
